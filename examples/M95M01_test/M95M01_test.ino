@@ -66,9 +66,7 @@ void loop() {
     M95M01.write_array(i*aligned_array_length, test_array, aligned_array_length);
     M95M01.read_array(i*aligned_array_length, readback, aligned_array_length);
 
-    // Serial.println(F("check"));
     for(j=0; j<aligned_array_length; j++){
-      // Serial.println(j);
       if(readback[j]!=0){
         Serial.print(F("zero readback error at 0x"));
         Serial.println(j+(i*aligned_array_length), HEX);
