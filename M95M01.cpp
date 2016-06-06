@@ -47,7 +47,8 @@ void M95M01_t::begin(uint8_t CS_pin, uint8_t speed_Hz){
 	digitalWrite(this->CS_pin, HIGH);
 	SPI.begin();
 	// SPI_MODE0 and SPI_MODE3 are both valid - SCK idles low with 0, HIGH with 3
-	SPI.beginTransaction(SPISettings(speed_Hz, MSBFIRST, SPI_MODE0)); 
+	// idling high reduces power consumption if using a pullup on SCK
+	SPI.beginTransaction(SPISettings(speed_Hz, MSBFIRST, SPI_MODE3)); 
 }
 
 
