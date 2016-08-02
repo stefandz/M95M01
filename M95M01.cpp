@@ -41,7 +41,7 @@ const uint8_t WRITE_TIMEOUT_MS = 10; // a write should only ever take 5 ms max
 M95M01_t::M95M01_t(){
 }
 
-void M95M01_t::begin(uint8_t CS_pin, uint8_t speed_Hz){
+void M95M01_t::begin(uint8_t CS_pin, uint32_t speed_Hz){
 	this->CS_pin = CS_pin;
 	pinMode(this->CS_pin, OUTPUT);
 	digitalWrite(this->CS_pin, HIGH);

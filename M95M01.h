@@ -30,7 +30,7 @@ class M95M01_t
 {		
 	public:
 		M95M01_t();
-		void begin(uint8_t CS_pin, uint8_t speed_Hz);
+		void begin(uint8_t CS_pin, uint32_t speed_Hz);
 		uint8_t write_byte(uint32_t address, uint8_t value);
 		uint8_t read_byte(uint32_t address);
 		uint8_t write_array(uint32_t address, uint8_t value_array[], const uint32_t array_length);
