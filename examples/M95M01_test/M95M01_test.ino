@@ -59,7 +59,7 @@ void loop() {
 
   Serial.println(F("zeros:"));
 
-  for(i=0; i<aligned_array_length; i++){
+  for(i=0; i<M95M01.num_bytes/aligned_array_length; i++){
       
     Serial.print(F("."));
     
@@ -103,7 +103,7 @@ void loop() {
 
   Serial.println(F("page-aligned array:"));
 
-  for(i=0; i<aligned_array_length; i++){
+  for(i=0; i<M95M01.num_bytes/aligned_array_length; i++){
       
     Serial.print(F("."));
     
