@@ -98,7 +98,7 @@ uint8_t M95M01_t::read_byte(uint32_t address){
 	}
 
 	digitalWrite(this->CS_pin, LOW);
-	SPI.transfer16((CMD_READ<<8) | (0xFF & (address >> 16))); // write instruction + top 8 bits of 24-bit address
+	SPI.transfer16((CMD_READ<<8) | (0x01 & (address >> 16))); // write instruction + top bit of 17-bit address
 	SPI.transfer16(address & 0xFFFF); // bottom 16 bits of 8-bit address
 	scratch = SPI.transfer(0x00); // dummy payload to clock data out
 	digitalWrite(this->CS_pin, HIGH);
@@ -168,7 +168,7 @@ uint8_t M95M01_t::read_array(uint32_t address, uint8_t value_array[], const uint
 	}
 
 	digitalWrite(this->CS_pin, LOW);
-	SPI.transfer16((CMD_READ<<8) | (0xFF & (address >> 16))); // write instruction + top 8 bits of 17-bit address
+	SPI.transfer16((CMD_READ<<8) | (0x01 & (address >> 16))); // write instruction + top 8 bits of 17-bit address
 	SPI.transfer16(address & 0xFFFF); // bottom 16 bits of 17-bit address
 	for(j=address; j<address+array_length; j++){
 		value_array[j-address] = SPI.transfer(0x00); // dummy payload to clock data out
