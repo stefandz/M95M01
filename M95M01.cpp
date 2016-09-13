@@ -36,8 +36,7 @@ const uint8_t BIT_BP0   = 2;	 // block protect 0
 const uint8_t BIT_BP1   = 3;	 // block protect 1
 const uint8_t BIT_SRWD  = 7;	 // status register write disable
 
-const uint8_t WRITE_TIMEOUT_MS = 20; // a write should only ever take 5 ms max
-                                     // but if you change page this can be longer
+const uint8_t WRITE_TIMEOUT_MS = 10; // a write should only ever take 5 ms max
 
 M95M01_t::M95M01_t(){
 }
@@ -57,15 +56,18 @@ uint8_t M95M01_t::write_byte(uint32_t address, uint8_t value){
 
 	// returns 0 is the write was successful
 	// returns 1 if the write timed out and hence was not successful
-	unsigned long start_time_ms = millis();
+
+	unsigned long start_time_ms;
 	uint8_t scratch;
 
+	digitalWrite(this->CS_pin, LOW);
+	SPI.transfer(CMD_RDSR);
+	start_time_ms = millis();	
+
 	do{
-		digitalWrite(this->CS_pin, LOW);
-		SPI.transfer(CMD_RDSR);
 		scratch = SPI.transfer(0); // dummy to clock out data
-		digitalWrite(this->CS_pin, HIGH); 
-	} while (millis() < start_time_ms + WRITE_TIMEOUT_MS && bitRead(scratch, BIT_WIP) == 1);
+	} while ((bitRead(scratch, BIT_WIP) == 1) && (millis() < start_time_ms + WRITE_TIMEOUT_MS));
+	digitalWrite(this->CS_pin, HIGH); 
 
 	if(bitRead(scratch, BIT_WIP) == 1){ // if we're still busy writing, something has gone wrong;
 		return(1); // timeout
@@ -84,15 +86,21 @@ uint8_t M95M01_t::write_byte(uint32_t address, uint8_t value){
 }
 
 uint8_t M95M01_t::read_byte(uint32_t address){
-	unsigned long start_time_ms = millis();
+
+	// returns the value of the requested byte if the read was successful
+	// returns 0 if the read timed out and was not successful (ambiguous)
+
+	unsigned long start_time_ms;
 	uint8_t scratch;
 
+	digitalWrite(this->CS_pin, LOW);
+	SPI.transfer(CMD_RDSR);
+	start_time_ms = millis();	
+
 	do{
-		digitalWrite(this->CS_pin, LOW);
-		SPI.transfer(CMD_RDSR);
 		scratch = SPI.transfer(0); // dummy to clock out data
-		digitalWrite(this->CS_pin, HIGH); 
-	} while (millis() < start_time_ms + WRITE_TIMEOUT_MS && bitRead(scratch, BIT_WIP) == 1);
+	} while ((bitRead(scratch, BIT_WIP) == 1) && (millis() < start_time_ms + WRITE_TIMEOUT_MS));
+	digitalWrite(this->CS_pin, HIGH); 
 
 	if(bitRead(scratch, BIT_WIP) == 1){ // if we're still busy writing, something has gone wrong;
 		return(0); // timeout
@@ -111,6 +119,7 @@ uint8_t M95M01_t::write_array(uint32_t address, uint8_t value_array[], const uin
 
 	// returns 0 is the write was successful
 	// returns 1 if the write timed out and hence was not successful
+
 	unsigned long start_time_ms;
 	uint8_t scratch;
 	uint32_t i; // page counter
@@ -119,19 +128,20 @@ uint8_t M95M01_t::write_array(uint32_t address, uint8_t value_array[], const uin
 
 	for(i=page(address); i<=page(address+array_length-1); i++){	
 
-		start_time_ms = millis();
 		if(i == page(address)){
 			page_start_address = address; // for the first page, start at the given address in case we're dropping in to the middle of a page
 		} else {
 			page_start_address = i*page_size; // else we start at the beginning of the current page
 		}
 
+		digitalWrite(this->CS_pin, LOW);
+		SPI.transfer(CMD_RDSR);
+		start_time_ms = millis();	
+
 		do{
-			digitalWrite(this->CS_pin, LOW);
-			SPI.transfer(CMD_RDSR);
 			scratch = SPI.transfer(0); // dummy to clock out data
-			digitalWrite(this->CS_pin, HIGH); 
-		} while (millis() < start_time_ms + WRITE_TIMEOUT_MS && bitRead(scratch, BIT_WIP) == 1);
+		} while ((bitRead(scratch, BIT_WIP) == 1) && (millis() < start_time_ms + WRITE_TIMEOUT_MS));
+		digitalWrite(this->CS_pin, HIGH); 
 
 		if(bitRead(scratch, BIT_WIP) == 1){ // if we're still busy writing, something has gone wrong;
 			return(1); // timeout
@@ -153,16 +163,22 @@ uint8_t M95M01_t::write_array(uint32_t address, uint8_t value_array[], const uin
 }
 
 uint8_t M95M01_t::read_array(uint32_t address, uint8_t value_array[], const uint32_t array_length){
+
+	// returns 0 is the read was successful
+	// returns 1 if the read timed out and hence was not successful
+
 	unsigned long start_time_ms = millis();
 	uint8_t scratch;
 	uint32_t j; // byte address counter
 
+	digitalWrite(this->CS_pin, LOW);
+	SPI.transfer(CMD_RDSR);
+	start_time_ms = millis();	
+
 	do{
-		digitalWrite(this->CS_pin, LOW);
-		SPI.transfer(CMD_RDSR);
 		scratch = SPI.transfer(0); // dummy to clock out data
-		digitalWrite(this->CS_pin, HIGH); 
-	} while (millis() < start_time_ms + WRITE_TIMEOUT_MS && bitRead(scratch, BIT_WIP) == 1);
+	} while ((bitRead(scratch, BIT_WIP) == 1) && (millis() < start_time_ms + WRITE_TIMEOUT_MS));
+	digitalWrite(this->CS_pin, HIGH); 
 
 	if(bitRead(scratch, BIT_WIP) == 1){ // if we're still busy writing, something has gone wrong;
 		return(1); // timeout
