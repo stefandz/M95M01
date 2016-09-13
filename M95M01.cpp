@@ -36,7 +36,8 @@ const uint8_t BIT_BP0   = 2;	 // block protect 0
 const uint8_t BIT_BP1   = 3;	 // block protect 1
 const uint8_t BIT_SRWD  = 7;	 // status register write disable
 
-const uint8_t WRITE_TIMEOUT_MS = 10; // a write should only ever take 5 ms max
+const uint8_t WRITE_TIMEOUT_MS = 20; // a write should only ever take 5 ms max
+                                     // but if you change page this can be longer
 
 M95M01_t::M95M01_t(){
 }
