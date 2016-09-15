@@ -28,6 +28,7 @@ const uint32_t aligned_array_length = 512; // page aligned - must be < unaligned
 
 uint32_t i;
 uint32_t j;
+uint32_t array_limit;
 
 uint8_t readback[unaligned_array_length];  
 uint8_t test_array[unaligned_array_length];
@@ -151,18 +152,26 @@ void loop() {
 
   for(i=0; i<1+(M95M01.num_bytes/unaligned_array_length); i++){ 
     Serial.print(F("."));
-    M95M01.write_array(i*unaligned_array_length, test_array, unaligned_array_length);
-    M95M01.read_array(i*unaligned_array_length, readback, unaligned_array_length);
+    if(i<M95M01.num_bytes/unaligned_array_length){
+      array_limit = unaligned_array_length;
+    } else {
+      array_limit = M95M01.num_bytes - (i*unaligned_array_length);
+    }
 
-    for(j=0; j<unaligned_array_length; j++){
+    M95M01.write_array(i*unaligned_array_length, test_array, array_limit);
+    M95M01.read_array(i*unaligned_array_length, readback, array_limit);
+
+    for(j=0; j<array_limit; j++){
       if(readback[j]!=test_array[j]){
         Serial.print(F("non-aligned array readback error at 0x"));
         Serial.println(j+(i*unaligned_array_length), HEX);
       }
     } 
+
     if(i%64 == 63){
       Serial.println();
     }    
+
   }
   Serial.println(F("done."));
   Serial.println();
